@@ -199,9 +199,115 @@ main.page {
 }
 
 .line-1 {
-  border-right: 2px solid rgba(255,255,255,.75);
+  width: fit-content;
+  border-right: 3px solid rgba(255,255,255,.75);
   white-space: nowrap;
   overflow: hidden;
+  padding-right: 2px;
+}
+
+/* ============================================
+   HOME PAGE (#hello) - Exact Original Styles
+   ============================================ */
+
+#hello {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  flex: 1 1 auto;
+  padding-left: 275px;
+  overflow: hidden;
+}
+
+#hello .hero {
+  width: 100%;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+#hello .game {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  z-index: 20;
+}
+
+#hello .head span {
+  font-size: 18px;
+  line-height: 1;
+  color: #E5E9F0;
+  font-family: 'Fira Code Retina', monospace;
+}
+
+#hello .head h1 {
+  font-size: 58px;
+  line-height: 1;
+  color: #E5E9F0;
+  font-family: 'Fira Code Regular', monospace;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+#hello .head h2,
+#hello .head .diple {
+  font-size: 32px;
+  line-height: 1;
+  color: #4D5BCE;
+  font-family: 'Fira Code Retina', monospace;
+}
+
+#hello .head {
+  padding-bottom: 3rem;
+}
+
+#hello #info {
+  display: flex;
+  flex-direction: column;
+  padding-block: 2.5rem;
+  font-size: 14px;
+}
+
+#hello #info > span {
+  font-size: 14px;
+  line-height: 1;
+  color: #8da9c6;
+  font-family: 'Fira Code Retina', monospace;
+  padding-bottom: 1rem;
+}
+
+#hello #info .action {
+  display: flex;
+}
+
+#hello .code {
+  font-family: 'Fira Code Medium', monospace;
+  color: #E5E9F0;
+}
+
+#hello .code .identifier {
+  color: #6172ff;
+}
+
+#hello .code .variable-name {
+  color: #43D9AD;
+}
+
+#hello .code .operator {
+  color: white;
+}
+
+#hello .code .string {
+  color: #E99287;
+  text-decoration-line: underline;
+  text-underline-offset: 4px;
+}
+
+.hide {
+  display: none;
 }
 
 /* Blurry Gradients */
@@ -216,26 +322,72 @@ main.page {
   filter: blur(70px);
   background: radial-gradient(circle at 50% 50%, rgba(77, 91, 206, 1), rgba(76, 0, 255, 0));
   opacity: 0.5;
-  z-index: 0;
+  z-index: 10;
   pointer-events: none;
 }
 
 .css-blurry-gradient-green {
-  position: fixed;
-  top: 25%;
-  left: 30%;
-  width: 250px;
-  height: 250px;
-  border-radius: 50% 50% 0% 0%;
-  rotate: -15deg;
+  position: absolute;
+  top: 20%;
+  right: 30%;
+  width: 300px;
+  height: 300px;
+  border-radius: 0% 50% 0% 50%;
   filter: blur(70px);
-  background: radial-gradient(circle at 50% 50%, rgba(67, 217, 173, 0.6), rgba(67, 217, 173, 0));
+  background: radial-gradient(circle at 50% 50%, rgba(67, 217, 173, 1), rgba(76, 0, 255, 0));
   opacity: 0.5;
-  z-index: 0;
+  z-index: 10;
   pointer-events: none;
 }
 
 /* Responsive */
+
+/* Mobile */
+@media (max-width: 768px) {
+  #hello {
+    padding-left: 0;
+  }
+
+  #hello .hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin: 1.75rem;
+  }
+
+  #hello .head {
+    padding-top: 4rem;
+  }
+
+  #hello .head h2,
+  #hello .head .diple {
+    font-size: 20px;
+    color: #43D9AD;
+  }
+
+  #hello #info .action {
+    display: none;
+  }
+}
+
+/* Tablet */
+@media (min-width: 768px) and (max-width: 1024px) {
+  #hello {
+    padding-left: 0;
+  }
+
+  #hello .hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 1.75rem;
+  }
+
+  #hello .head {
+    padding-top: 4rem;
+  }
+}
+
 @media (max-width: 1024px) {
   body {
     padding: 0.75rem;
@@ -277,6 +429,45 @@ main.page {
 
   #page-menu, #filter-menu {
     font-size: 0.875rem;
+  }
+
+  .css-blurry-gradient-blue {
+    position: fixed;
+    bottom: 10%;
+    right: 10%;
+    width: 500px;
+    height: 500px;
+    opacity: 0.7;
+    border-radius: 100% 50% 100% 0%;
+  }
+
+  .css-blurry-gradient-green {
+    position: fixed;
+    top: 10%;
+    right: 35%;
+    filter: blur(100px);
+    rotate: 10deg;
+    width: 400px;
+    height: 400px;
+    opacity: 0.5;
+    border-radius: 100% 0% 0% 0%;
+    rotate: 20deg;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1320px) {
+  #hello {
+    padding-left: 135px;
+  }
+}
+
+@media (min-width: 1920px) {
+  #hello {
+    padding-left: 310px;
+  }
+  
+  #hello .head h1 {
+    font-size: 62px;
   }
 }
 
