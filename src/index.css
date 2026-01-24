@@ -1,0 +1,334 @@
+@import "tailwindcss";
+
+/* Custom Tailwind Theme */
+@theme {
+  --color-gray-dark: #121212;
+  --color-glitch-green: #00ff00;
+  --color-glitch-rose: #f0f;
+  --color-glitch-blue: #0ff;
+  --color-neon-blue-xs: #08cff6;
+  --color-neon-blue-s: #194262;
+  --color-neon-blue-m: #0e2535;
+  --color-neon-blue-l: #05131e;
+  --color-neon-blue-xl: #020204;
+  --color-dark-background: #010C15;
+  --color-menu-text: #607B96;
+  --color-blue-background: #011627;
+  --color-hello-name: #E5E9F0;
+  --color-purple-text: #81a0fd;
+  --color-hello-gray: #84a6c8;
+  --color-codeline-link: #E99287;
+  --color-codeline-tag: #4D5BCE;
+  --color-codeline-name: #43D9AD;
+  --color-mobile-menu-blue: #011627;
+  --color-placeholder-gray: #465E77;
+  --color-greenfy: #43D9AD;
+  --color-bluefy-dark: #011627;
+  --color-purplefy: #799ffb;
+  --color-border: #1E2D3D;
+
+  --font-fira-light: "Fira Code Light", monospace;
+  --font-fira-regular: "Fira Code Regular", monospace;
+  --font-fira-retina: "Fira Code Retina", monospace;
+  --font-fira-medium: "Fira Code Medium", monospace;
+  --font-fira-semibold: "Fira Code SemiBold", monospace;
+  --font-fira-bold: "Fira Code Bold", monospace;
+}
+
+/* Font Faces */
+@font-face {
+  font-family: 'Fira Code Light';
+  src: url('./assets/fonts/fira-code/FiraCode-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Fira Code Regular';
+  src: url('./assets/fonts/fira-code/FiraCode-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Fira Code Retina';
+  src: url('./assets/fonts/fira-code/FiraCode-Retina.ttf') format('truetype');
+  font-weight: 450;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Fira Code Medium';
+  src: url('./assets/fonts/fira-code/FiraCode-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Fira Code SemiBold';
+  src: url('./assets/fonts/fira-code/FiraCode-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Fira Code Bold';
+  src: url('./assets/fonts/fira-code/FiraCode-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* Base Styles */
+html {
+  background-color: var(--color-dark-background);
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+#root {
+  background-color: var(--color-blue-background);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+h3, h2 {
+  font-family: 'Fira Code Retina', monospace;
+  font-size: 15px;
+}
+
+/* Font utility */
+.font-fira {
+  font-family: 'Fira Code Retina', monospace;
+}
+
+/* Utility Classes */
+.border-right {
+  border-right: 1px solid var(--color-border);
+}
+
+.border-left {
+  border-left: 1px solid var(--color-border);
+}
+
+.border-bot {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.border-top {
+  border-top: 1px solid var(--color-border);
+}
+
+/* Page Styles */
+main.page {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+/* Section Content */
+#section-content-title {
+  width: 100%;
+  min-height: 35px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+#section-content-title:hover {
+  cursor: pointer;
+}
+
+/* Mobile */
+#mobile-page-title {
+  display: flex;
+  font-size: 14px;
+  height: 70px;
+  color: white;
+  padding: 0 25px;
+  align-items: center;
+}
+
+.section-arrow {
+  margin-right: 10px;
+  transition: 0.1s;
+}
+
+.section-arrow.open {
+  transform: rotate(90deg);
+}
+
+.tab-height {
+  min-height: 35px;
+  max-height: 35px;
+}
+
+/* Typewriter Animation */
+.anim-typewriter {
+  animation: typewriter 2s steps(25) 1s 1 normal both,
+             blinkTextCursor 500ms steps(25) infinite normal;
+}
+
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blinkTextCursor {
+  from { border-right-color: rgba(255,255,255,.75); }
+  to { border-right-color: transparent; }
+}
+
+.line-1 {
+  border-right: 2px solid rgba(255,255,255,.75);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* Blurry Gradients */
+.css-blurry-gradient-blue {
+  position: fixed;
+  bottom: 25%;
+  right: 5%;
+  width: 300px;
+  height: 300px;
+  border-radius: 0% 0% 50% 50%;
+  rotate: 10deg;
+  filter: blur(70px);
+  background: radial-gradient(circle at 50% 50%, rgba(77, 91, 206, 1), rgba(76, 0, 255, 0));
+  opacity: 0.5;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.css-blurry-gradient-green {
+  position: fixed;
+  top: 25%;
+  left: 30%;
+  width: 250px;
+  height: 250px;
+  border-radius: 50% 50% 0% 0%;
+  rotate: -15deg;
+  filter: blur(70px);
+  background: radial-gradient(circle at 50% 50%, rgba(67, 217, 173, 0.6), rgba(67, 217, 173, 0));
+  opacity: 0.5;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  body {
+    padding: 0.75rem;
+  }
+
+  #root {
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  #page-menu, #nav-logo, #filter-menu {
+    border: 0px;
+  }
+
+  #page-menu {
+    width: 100% !important;
+  }
+
+  #section-content-title {
+    width: 100%;
+    height: 1.875rem;
+    background-color: var(--color-border);
+    align-items: center;
+    padding: 0 1.5rem;
+  }
+
+  footer {
+    height: 2.5rem;
+    min-height: 2.5rem !important;
+    font-size: 0.75rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  #page-menu, #nav-logo, #filter-menu {
+    min-width: 17rem !important;
+    max-width: 17rem !important;
+  }
+
+  #page-menu, #filter-menu {
+    font-size: 0.875rem;
+  }
+}
+
+/* Header Styles */
+#navbar > nav {
+  height: 2.75rem;
+  font-size: 13px;
+}
+
+/* Custom Checkbox */
+.custom-checkbox {
+  appearance: none;
+  background-color: transparent;
+  width: 1.15em;
+  height: 1.15em;
+  border: 2px solid currentColor;
+  border-radius: 0.15em;
+  margin-top: 1px;
+  cursor: pointer;
+}
+
+.custom-checkbox:checked {
+  background-color: currentColor;
+  background-image: url("data:image/svg+xml,%3Csvg width='13' height='10' viewBox='0 0 13 10' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.38587 7.2802L11.9718 0.693573L12.9856 1.70668L5.38587 9.30641L0.826172 4.74671L1.83928 3.73361L5.38587 7.2802Z' fill='white'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.custom-checkbox:checked:hover {
+  box-shadow: #607b968b 0px 0px 0px 2px;
+}
+
+.custom-checkbox:not(:checked) {
+  border-color: currentColor;
+}
+
+.custom-checkbox:hover {
+  cursor: pointer;
+  background-color: currentColor;
+  background-image: url("data:image/svg+xml,%3Csvg width='13' height='10' viewBox='0 0 13 10' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.38587 7.2802L11.9718 0.693573L12.9856 1.70668L5.38587 9.30641L0.826172 4.74671L1.83928 3.73361L5.38587 7.2802Z' fill='white'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  box-shadow: #607b968b 0px 0px 0px 2px;
+}
+
+.custom-checkbox:hover:not(:checked) {
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.1);
+  background-image: none;
+  box-shadow: #607b968b 0px 0px 0px 2px;
+}
+
+.custom-checkbox:focus {
+  box-shadow: none;
+}
