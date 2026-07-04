@@ -23,3 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 .env
+gitignore
+.gitignore
+portfolio - desing to follow/
+portfolio - desing to follow/*
