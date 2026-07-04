@@ -1,39 +1,50 @@
 const ProjectCard = ({ project, index }) => {
   return (
-    <div className="lg:mx-5 min-w-[400px] mb-[5px] max-md:min-w-full md:w-full md:min-w-full md:px-[5px] lg:px-[20px]">
-      <span className="flex text-sm my-3">
-        <h3 className="text-purplefy font-[Fira_Code_Bold] mr-3">Project {index + 1}</h3>
-        <h4 className="font-[Fira_Code_Retina] text-menu-text">// {project.title}</h4>
-      </span>
+    <div id="project" className="flex flex-col mb-8 w-full max-w-[400px] justify-self-center">
+      {/* Project Label */}
+      <div className="flex items-center text-sm mb-4">
+        <h3 className="text-[#4D5BCE] font-[Fira_Code_Bold] mr-3 italic">
+          Project {index + 1}
+        </h3>
+        <h4 className="font-[Fira_Code_Retina] text-menu-text truncate">
+          // {project.title}
+        </h4>
+      </div>
 
-      <div className="flex flex-col border border-border bg-[#011221] rounded-[15px] max-w-[400px]">
-        <div className="max-h-[120px] relative overflow-hidden">
-          <div className="absolute flex right-3 top-3">
+      {/* Card Content */}
+      <div className="bg-[#011221] border border-border rounded-[15px] overflow-hidden flex flex-col transition-transform hover:translate-y-[-4px]">
+        {/* Preview Image & Tech Icons */}
+        <div className="relative h-[150px] overflow-hidden border-bot">
+          {/* Tech Icons Overlay */}
+          <div className="absolute right-3 top-3 flex gap-2 z-10">
             {project.tech.map((tech) => (
               <img 
                 key={tech}
-                src={`/icons/techs/filled/${tech}.svg`} 
+                src={`/icons/techs/filled/${tech.toLowerCase().replace(' ', '-')}.svg`} 
                 alt={tech}
-                className="w-6 h-6 mx-1 hover:opacity-75"
+                className="w-6 h-6 hover:scale-110 transition-transform"
+                title={tech}
               />
             ))}
           </div>
+          {/* Main Image */}
           <img 
             src={project.img} 
             alt={project.title}
-            className="rounded-t-[15px]"
+            className="w-full h-full object-cover"
           />
         </div>
 
-        <div className="pb-8 pt-6 px-6 border-top">
-          <p className="text-menu-text font-[Fira_Code_Retina] text-sm mb-5">
+        {/* Description & Link */}
+        <div className="p-6 flex flex-col gap-6">
+          <p className="text-menu-text font-[Fira_Code_Retina] text-sm leading-6 h-[72px] overflow-hidden line-clamp-3">
             {project.description}
           </p>
           <a 
             href={project.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-white font-[Fira_Code_Retina] py-2 px-4 w-fit text-xs rounded-lg bg-[#1C2B3A] hover:bg-[#263B50]"
+            className="text-white font-[Fira_Code_Retina] py-2 px-4 w-fit text-xs rounded-lg bg-[#1C2B3A] hover:bg-[#263B50] transition-colors"
           >
             view-project
           </a>

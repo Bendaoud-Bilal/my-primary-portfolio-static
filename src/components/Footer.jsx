@@ -13,12 +13,12 @@ const Footer = () => {
         </span>
         <div id="social-icons" className="flex">
           <a 
-            href={`${social.twitter.url}${social.twitter.user}`}
+            href={`${social.x.url}${social.x.user}`}
             target="_blank" 
             rel="noopener noreferrer"
             className="flex justify-center items-center w-[50px] h-full border-right hover:bg-[#1e2d3d74]"
           >
-            <img src="/icons/social/twitter.svg" alt="twitter" className="w-5 h-5 opacity-40 hover:opacity-100" />
+            <img src="/icons/social/x.svg" alt="X" className="w-5 h-5 opacity-40 hover:opacity-100" />
           </a>
           <a 
             href={`${social.facebook.url}${social.facebook.user}`}
@@ -26,7 +26,7 @@ const Footer = () => {
             rel="noopener noreferrer"
             className="flex justify-center items-center w-[50px] h-full border-right hover:bg-[#1e2d3d74]"
           >
-            <img src="/icons/social/facebook.svg" alt="facebook" className="w-5 h-5 opacity-40 hover:opacity-100" />
+            <img src="/icons/social/facebook.svg" alt="Facebook" className="w-5 h-5 opacity-40 hover:opacity-100" />
           </a>
           <a 
             href={`${social.github.url}${social.github.user}`}

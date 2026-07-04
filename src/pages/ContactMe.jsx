@@ -17,6 +17,22 @@ const ContactMe = () => {
 
   const contact = config.contacts;
 
+  // Generate code preview lines
+  const codeLines = [
+    { content: [{ text: 'const', cls: 'text-codeline-tag' }, { text: ' button', cls: 'text-codeline-name' }, { text: ' = ', cls: 'text-white' }, { text: 'document', cls: 'text-codeline-tag' }, { text: '.', cls: 'text-white' }, { text: 'querySelector', cls: 'text-codeline-name' }, { text: "(", cls: 'text-white' }, { text: "'#sendBtn'", cls: 'text-codeline-link' }, { text: ');', cls: 'text-white' }] },
+    { content: [] },
+    { content: [{ text: 'const', cls: 'text-codeline-tag' }, { text: ' message', cls: 'text-codeline-name' }, { text: ' = {', cls: 'text-white' }] },
+    { content: [{ text: '  name', cls: 'text-codeline-name' }, { text: ': ', cls: 'text-white' }, { text: `"${formData.name || 'name'}"`, cls: 'text-codeline-link' }, { text: ',', cls: 'text-white' }] },
+    { content: [{ text: '  email', cls: 'text-codeline-name' }, { text: ': ', cls: 'text-white' }, { text: `"${formData.email || 'email'}"`, cls: 'text-codeline-link' }, { text: ',', cls: 'text-white' }] },
+    { content: [{ text: '  message', cls: 'text-codeline-name' }, { text: ': ', cls: 'text-white' }, { text: `"${formData.message || 'message'}"`, cls: 'text-codeline-link' }, { text: ',', cls: 'text-white' }] },
+    { content: [{ text: '  date', cls: 'text-codeline-name' }, { text: ': ', cls: 'text-white' }, { text: `"${new Date().toDateString()}"`, cls: 'text-codeline-link' }] },
+    { content: [{ text: '};', cls: 'text-white' }] },
+    { content: [] },
+    { content: [{ text: 'button', cls: 'text-codeline-name' }, { text: '.', cls: 'text-white' }, { text: 'addEventListener', cls: 'text-codeline-name' }, { text: '(', cls: 'text-white' }, { text: "'click'", cls: 'text-codeline-link' }, { text: ', () ', cls: 'text-white' }, { text: '=>', cls: 'text-codeline-tag' }, { text: ' {', cls: 'text-white' }] },
+    { content: [{ text: '  form', cls: 'text-codeline-name' }, { text: '.', cls: 'text-white' }, { text: 'send', cls: 'text-codeline-name' }, { text: '(', cls: 'text-white' }, { text: 'message', cls: 'text-codeline-name' }, { text: ');', cls: 'text-white' }] },
+    { content: [{ text: '});', cls: 'text-white' }] },
+  ];
+
   return (
     <main id="contact-me" className="page flex flex-col lg:flex-row">
       {/* Mobile Page Title */}
@@ -70,14 +86,14 @@ const ContactMe = () => {
             <div className="py-[10px]">
               {Object.entries(contact.find_me_also_in.sources).map(([key, source]) => (
                 <div key={key} className="flex items-center py-1 px-6">
-                  <img src="/icons/link.svg" alt="" className="w-4 h-4 mr-[10px]" />
+                  <img src={key === 'discord' ? "/icons/discord.svg" : (key === 'instagram' ? "/icons/instagram.svg" : "/icons/link.svg")} alt="" className="w-4 h-4 mr-[10px]" />
                   <a 
-                    href={`${source.url}${source.user}`}
+                    href={source.url !== '#' ? (source.user ? `${source.url}${source.user}` : source.url) : '#'}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-[Fira_Code_Retina] text-menu-text hover:text-white"
                   >
-                    {source.title}
+                    {source.title} {source.user && `: ${source.user}`}
                   </a>
                 </div>
               ))}
@@ -103,67 +119,29 @@ const ContactMe = () => {
             <ContactForm onInputChange={handleInputChange} />
           </div>
 
-          {/* Right - Code Preview */}
+          {/* Right - Code Preview with Line Numbers */}
           <div id="right" className="h-full w-full hidden lg:flex">
-            <div className="form-content p-[75px_50px_0_75px] w-full h-full overflow-y-auto text-[15px]">
-              <pre className="font-[Fira_Code_Retina] text-menu-text">
-                <code>
-                  <span className="text-codeline-tag">const</span>{' '}
-                  <span className="text-codeline-name">button</span>{' '}
-                  <span className="text-white">=</span>{' '}
-                  <span className="text-codeline-tag">document</span>
-                  <span className="text-white">.</span>
-                  <span className="text-codeline-name">querySelector</span>
-                  <span className="text-white">(</span>
-                  <span className="text-codeline-link">'#sendBtn'</span>
-                  <span className="text-white">);</span>
-                  {'\n\n'}
-                  <span className="text-codeline-tag">const</span>{' '}
-                  <span className="text-codeline-name">message</span>{' '}
-                  <span className="text-white">=</span>{' '}
-                  <span className="text-white">{'{'}</span>
-                  {'\n'}
-                  {'  '}<span className="text-codeline-name">name</span>
-                  <span className="text-white">:</span>{' '}
-                  <span className="text-codeline-link">"{formData.name || 'name'}"</span>
-                  <span className="text-white">,</span>
-                  {'\n'}
-                  {'  '}<span className="text-codeline-name">email</span>
-                  <span className="text-white">:</span>{' '}
-                  <span className="text-codeline-link">"{formData.email || 'email'}"</span>
-                  <span className="text-white">,</span>
-                  {'\n'}
-                  {'  '}<span className="text-codeline-name">message</span>
-                  <span className="text-white">:</span>{' '}
-                  <span className="text-codeline-link">"{formData.message || 'message'}"</span>
-                  <span className="text-white">,</span>
-                  {'\n'}
-                  {'  '}<span className="text-codeline-name">date</span>
-                  <span className="text-white">:</span>{' '}
-                  <span className="text-codeline-link">"{new Date().toDateString()}"</span>
-                  {'\n'}
-                  <span className="text-white">{'}'};</span>
-                  {'\n\n'}
-                  <span className="text-codeline-name">button</span>
-                  <span className="text-white">.</span>
-                  <span className="text-codeline-name">addEventListener</span>
-                  <span className="text-white">(</span>
-                  <span className="text-codeline-link">'click'</span>
-                  <span className="text-white">,</span>{' '}
-                  <span className="text-white">()</span>{' '}
-                  <span className="text-codeline-tag">=&gt;</span>{' '}
-                  <span className="text-white">{'{'}</span>
-                  {'\n'}
-                  {'  '}<span className="text-codeline-name">form</span>
-                  <span className="text-white">.</span>
-                  <span className="text-codeline-name">send</span>
-                  <span className="text-white">(</span>
-                  <span className="text-codeline-name">message</span>
-                  <span className="text-white">);</span>
-                  {'\n'}
-                  <span className="text-white">{'}'});</span>
-                </code>
-              </pre>
+            <div className="form-content p-[35px_0_0_0] w-full h-full overflow-y-auto text-[15px] flex">
+              {/* Line Numbers */}
+              <div className="flex flex-col items-end pr-4 pl-6 select-none flex-shrink-0">
+                {codeLines.map((_, i) => (
+                  <span key={i} className="font-[Fira_Code_Retina] text-menu-text opacity-50 leading-6 text-sm">{i + 1}</span>
+                ))}
+              </div>
+              {/* Code */}
+              <div className="flex-1 overflow-x-auto pr-6">
+                <pre className="font-[Fira_Code_Retina] text-sm">
+                  <code>
+                    {codeLines.map((line, i) => (
+                      <div key={i} className="leading-6 whitespace-nowrap">
+                        {line.content.length === 0 ? '\u00A0' : line.content.map((part, j) => (
+                          <span key={j} className={part.cls}>{part.text}</span>
+                        ))}
+                      </div>
+                    ))}
+                  </code>
+                </pre>
+              </div>
             </div>
 
             {/* Scroll Bar */}

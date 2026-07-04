@@ -422,6 +422,10 @@ main.page {
 }
 
 @media (min-width: 1024px) {
+  main.page {
+    flex-direction: row;
+  }
+
   #page-menu, #nav-logo, #filter-menu {
     min-width: 17rem !important;
     max-width: 17rem !important;

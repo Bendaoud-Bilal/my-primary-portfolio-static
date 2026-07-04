@@ -50,6 +50,9 @@ const MobileMenu = () => {
 
       {/* Mobile menu */}
       <div id="menu" className={`bg-mobile-menu-blue z-10 ${menuOpen ? 'block' : 'hidden'}`}>
+        <div className="text-menu-text font-[Fira_Code_Retina] px-6 py-3 border-bot text-sm">
+          # navigate:
+        </div>
         <NavLink 
           to="/" 
           end
