@@ -10,6 +10,7 @@ import Home from './pages/Home';
 import AboutMe from './pages/AboutMe';
 import Projects from './pages/Projects';
 import ContactMe from './pages/ContactMe';
+import NotFound from './pages/NotFound';
 
 function App() {
   useEffect(() => {
@@ -41,6 +42,7 @@ function App() {
         <Route path="/about-me" element={<AboutMe />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/contact-me" element={<ContactMe />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />
     </Router>

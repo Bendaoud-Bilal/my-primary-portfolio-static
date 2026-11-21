@@ -26,3 +26,5 @@ dist-ssr
 gitignore
 .gitignore
 portfolio - desing to follow/
+# Local agent/editor tooling
+.claude/

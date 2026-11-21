@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import config from '../data/developer.json';
-import SnakeGame from '../components/SnakeGame';
+import GameConsole from '../components/GameConsole';
 
 const Home = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -59,7 +59,7 @@ const Home = () => {
 
       {!isMobile && (
         <section data-aos="fade-up" className="game">
-          <SnakeGame />
+          <GameConsole />
         </section>
       )}
     </main>

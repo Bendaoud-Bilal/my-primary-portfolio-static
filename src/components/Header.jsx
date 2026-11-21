@@ -6,7 +6,7 @@ const Header = () => {
   return (
     <header id="navbar" className="w-full hidden lg:flex flex-col">
       <nav className="w-full flex justify-between border-bot">
-        <GithubCorner url="https://github.com/alexdeploy/developer-portfolio-v2" />
+        <GithubCorner url="https://github.com/Bendaoud-Bilal/my-primary-portfolio-static" />
         <div className="flex">
           <NavLink 
             id="nav-logo" 

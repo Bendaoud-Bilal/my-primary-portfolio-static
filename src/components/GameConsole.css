@@ -65,6 +65,34 @@
   padding: 10px;
 }
 
+/* Game selector tabs */
+#game-select {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.game-tab {
+  font-family: 'Fira Code Retina', monospace;
+  font-size: 12px;
+  color: #607B96;
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: rgba(1, 20, 35, 0.19);
+  transition: color 0.15s, box-shadow 0.15s;
+  border: none;
+}
+
+.game-tab:hover {
+  color: #ffffff;
+}
+
+.game-tab.active {
+  color: #43D9AD;
+  box-shadow: 0 0 8px rgba(67, 217, 173, 0.45);
+}
+
 .food {
   background-color: #43D9AD;
   border-radius: 50%;
