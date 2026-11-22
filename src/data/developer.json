@@ -2,6 +2,12 @@
     "name": "Bilal Bendaoud",
     "logo_name": "bilal-bendaoud",
     "role": "Computer Science Student & Backend Developer",
+    "taglines": [
+        "Junior full-stack web and app developer",
+        "Junior pentester",
+        "3+ years of coding experience",
+        "Always learning new things"
+    ],
     "about": {
         "sections": {
             "professional-info": {

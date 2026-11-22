@@ -1,18 +1,20 @@
 import { useState, useEffect } from 'react';
 import config from '../data/developer.json';
 import GameConsole from '../components/GameConsole';
+import TypingCycle from '../components/TypingCycle';
+
+// Same breakpoint as the CSS / Tailwind `lg` (desktop starts at 1024px)
+const MOBILE_QUERY = '(max-width: 1023.98px)';
+const ROLE = [config.role];
 
 const Home = () => {
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => window.matchMedia(MOBILE_QUERY).matches);
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 1024);
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    const mq = window.matchMedia(MOBILE_QUERY);
+    const onChange = (e) => setIsMobile(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
   }, []);
 
   return (
@@ -25,12 +27,20 @@ const Home = () => {
         <div className="head">
           <span>Hi all, I am</span>
           <h1>{config.name}</h1>
-          <span className="diple flex">
-            &gt;&nbsp;
-            <h2 className="line-1 anim-typewriter max-w-fit">
-              {config.role}
-            </h2>
-          </span>
+          <h2>
+            <span aria-hidden="true">&gt;&nbsp;</span>
+            <TypingCycle
+              phrases={ROLE}
+              once
+              startDelay={1000}
+              typingSpeed={45}
+              className="role-typing"
+            />
+          </h2>
+
+          <p className="roles-cycle">
+            <TypingCycle phrases={config.taglines} />
+          </p>
         </div>
 
         <div id="info">

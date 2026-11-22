@@ -6,9 +6,13 @@ import './GameConsole.css';
  * GameConsole — a single retro console that hosts three games
  * (Snake, Flappy Bird, Tetris) sharing the exact same console design.
  *
- * All games render into the same 24 x 40 cell screen, use the same
- * monochrome green palette, and share the same 10-step win indicator.
- * Reaching a score of 10 wins ("WELL DONE!"); failing shows "GAME OVER!".
+ * All games use the same 24 x 40 screen, the same green palette and the same
+ * 10-step win indicator. Reaching a score of 10 wins ("WELL DONE!"); failing
+ * shows "GAME OVER!".
+ *
+ * Snake and Tetris are drawn on the cell grid. Flappy Bird runs on continuous
+ * physics (requestAnimationFrame) and is drawn with overlays — an SVG bird and
+ * pipe bars — so it moves smoothly instead of jumping cell by cell.
  *
  * The player can switch games at any time from the selector tabs. Switching
  * mid-game simply abandons the current run and resets to the chosen game.
@@ -22,9 +26,20 @@ const GREEN = '#43D9AD';
 
 const GAMES = {
   snake: { label: 'snake', unit: 'food', speed: 50 },
-  flappy: { label: 'flappy', unit: 'pipes', speed: 90 },
+  flappy: { label: 'flappy', unit: 'pipes' },
   tetris: { label: 'tetris', unit: 'lines', speed: 360 },
 };
+
+// --- Flappy Bird tuning (all distances in cells, times in seconds) ---
+const BIRD_CX = 6.5;     // bird centre x
+const BIRD_R = 0.9;      // bird collision radius
+const GAP = 10;          // vertical opening between pipes
+const PIPE_W = 2;        // pipe width
+const SPACING = 17;      // horizontal distance between pipes
+const SPEED = 8;         // pipe scroll speed (cells / s)
+const GRAVITY = 55;      // downward acceleration (cells / s^2)
+const FLAP = -15;        // upward velocity after a flap (cells / s)
+const MAX_FALL = 26;     // terminal fall speed (cells / s)
 
 // --- Tetris piece definitions (cells are [x, y] within a small bounding box) ---
 const TETROMINOES = {
@@ -75,9 +90,9 @@ const TETRO_KEYS = Object.keys(TETROMINOES);
 
 // Tetris playfield placement within the shared 24 x 40 screen
 const PF_W = 12;
-const PF_H = 30;
+const PF_H = 32;
 const PF_OFF_X = (COLS - PF_W) / 2; // 6
-const PF_OFF_Y = 5;
+const PF_OFF_Y = 4;
 
 const snakeStart = () => [
   { x: 10, y: 12 }, { x: 10, y: 13 }, { x: 10, y: 14 },
@@ -88,6 +103,11 @@ const snakeStart = () => [
   { x: 15, y: 22 }, { x: 15, y: 23 }, { x: 15, y: 24 },
 ];
 
+// Pixel size of one cell — uses the same media query as the compact console in
+// GameConsole.css, so the grid always matches the #game-screen size
+const SMALL_SCREEN_QUERY = '(max-width: 1536px), (max-height: 700px)';
+const cellSize = () => (window.matchMedia(SMALL_SCREEN_QUERY).matches ? 8 : 10);
+
 const GameConsole = () => {
   const [currentGame, setCurrentGame] = useState('snake');
   const [showStartButton, setShowStartButton] = useState(true);
@@ -96,11 +116,16 @@ const GameConsole = () => {
 
   const rootRef = useRef(null);
   const gameScreenRef = useRef(null);
+  const birdRef = useRef(null);
+  const pipesLayerRef = useRef(null);
+  const tetrisWellRef = useRef(null);
 
   // Shared control state
   const gameRef = useRef('snake');       // mirror of currentGame for callbacks
   const gameStartedRef = useRef(false);
-  const intervalRef = useRef(null);
+  const intervalRef = useRef(null);      // snake / tetris loop
+  const rafRef = useRef(null);           // flappy loop
+  const lastTsRef = useRef(null);
   const scoreRef = useRef(0);
 
   // Snake state
@@ -108,13 +133,10 @@ const GameConsole = () => {
   const foodRef = useRef({ x: 10, y: 5 });
   const dirRef = useRef('up');
 
-  // Flappy state
+  // Flappy state (continuous)
   const birdYRef = useRef(ROWS / 2);
   const birdVelRef = useRef(0);
   const pipesRef = useRef([]);
-  const BIRD_X = 6;
-  const GAP = 9;
-  const PIPE_SPACING = 15;
 
   // Tetris state
   const boardRef = useRef(null);
@@ -202,69 +224,104 @@ const GameConsole = () => {
   };
 
   // ============================================================
-  //  FLAPPY BIRD
+  //  FLAPPY BIRD (continuous physics, drawn with overlays)
   // ============================================================
+  const randomGapTop = () => 3 + Math.random() * (ROWS - GAP - 6);
+
   const flappyReset = () => {
     birdYRef.current = ROWS / 2;
     birdVelRef.current = 0;
     pipesRef.current = [
-      { x: COLS + 2, gapTop: 10, passed: false },
-      { x: COLS + 2 + PIPE_SPACING, gapTop: 20, passed: false },
+      { x: COLS + 2, gapTop: randomGapTop(), passed: false },
+      { x: COLS + 2 + SPACING, gapTop: randomGapTop(), passed: false },
     ];
   };
 
   const flappyFlap = () => {
-    birdVelRef.current = -1.7;
+    birdVelRef.current = FLAP;
   };
 
-  const flappyTick = () => {
-    birdVelRef.current += 0.35;
-    birdYRef.current += birdVelRef.current;
+  const drawFlappy = () => {
+    const cs = cellSize();
 
-    // Move pipes left
-    pipesRef.current.forEach((p) => { p.x -= 1; });
+    const bird = birdRef.current;
+    if (bird) {
+      const size = 2.6 * cs;
+      // nose up when rising, dive when falling
+      const tilt = Math.max(-25, Math.min(70, birdVelRef.current * 3));
+      bird.style.width = `${size}px`;
+      bird.style.height = `${size}px`;
+      bird.style.transform =
+        `translate(${BIRD_CX * cs - size / 2}px, ${birdYRef.current * cs - size / 2}px) rotate(${tilt}deg)`;
+    }
 
-    // Score when a pipe passes the bird
-    pipesRef.current.forEach((p) => {
-      if (!p.passed && p.x < BIRD_X) {
+    const layer = pipesLayerRef.current;
+    if (layer) {
+      let html = '';
+      for (const p of pipesRef.current) {
+        const left = p.x * cs;
+        const width = PIPE_W * cs;
+        const topH = p.gapTop * cs;
+        const bottomTop = (p.gapTop + GAP) * cs;
+        const bottomH = (ROWS - p.gapTop - GAP) * cs;
+        html += `<div class="pipe pipe-top" style="left:${left}px;top:0;width:${width}px;height:${topH}px"></div>`;
+        html += `<div class="pipe pipe-bottom" style="left:${left}px;top:${bottomTop}px;width:${width}px;height:${bottomH}px"></div>`;
+      }
+      layer.innerHTML = html;
+    }
+  };
+
+  const flappyFrame = (ts) => {
+    if (!gameStartedRef.current) return;
+    if (lastTsRef.current === null) {
+      lastTsRef.current = ts;
+      rafRef.current = requestAnimationFrame(flappyFrame);
+      return;
+    }
+    // clamp dt so a background tab doesn't teleport the bird
+    const dt = Math.min(0.05, (ts - lastTsRef.current) / 1000);
+    lastTsRef.current = ts;
+
+    birdVelRef.current = Math.min(MAX_FALL, birdVelRef.current + GRAVITY * dt);
+    birdYRef.current += birdVelRef.current * dt;
+
+    for (const p of pipesRef.current) p.x -= SPEED * dt;
+
+    // score each pipe once the bird has cleared it
+    for (const p of pipesRef.current) {
+      if (!p.passed && p.x + PIPE_W < BIRD_CX - BIRD_R) {
         p.passed = true;
         setScore(scoreRef.current + 1);
       }
-    });
-
-    // Recycle / spawn pipes
-    pipesRef.current = pipesRef.current.filter((p) => p.x > -1);
-    const lastX = pipesRef.current.reduce((m, p) => Math.max(m, p.x), 0);
-    if (pipesRef.current.length < 2 || lastX <= COLS - PIPE_SPACING) {
-      pipesRef.current.push({
-        x: lastX + PIPE_SPACING,
-        gapTop: 3 + Math.floor(Math.random() * (ROWS - GAP - 6)),
-        passed: false,
-      });
     }
 
-    if (scoreRef.current >= WIN_SCORE) return win();
+    // recycle off-screen pipes and keep the next ones coming
+    pipesRef.current = pipesRef.current.filter((p) => p.x > -PIPE_W - 1);
+    const lastX = pipesRef.current.reduce((m, p) => Math.max(m, p.x), 0);
+    if (pipesRef.current.length < 2 || lastX <= COLS - SPACING) {
+      pipesRef.current.push({ x: lastX + SPACING, gapTop: randomGapTop(), passed: false });
+    }
 
-    const by = Math.floor(birdYRef.current);
-    if (by < 0 || by >= ROWS) return gameOver();
-    const hit = pipesRef.current.some(
-      (p) => p.x === BIRD_X && (by < p.gapTop || by >= p.gapTop + GAP)
-    );
-    if (hit) return gameOver();
+    if (scoreRef.current >= WIN_SCORE) {
+      drawFlappy();
+      return win();
+    }
 
-    render();
-  };
-
-  const flappyStyle = (x, y) => {
-    if (x === BIRD_X && y === Math.floor(birdYRef.current)) {
-      return { backgroundColor: GREEN, borderRadius: '50%', boxShadow: `0 0 10px ${GREEN}` };
+    const by = birdYRef.current;
+    if (by - BIRD_R < 0 || by + BIRD_R > ROWS) {
+      drawFlappy();
+      return gameOver();
     }
     for (const p of pipesRef.current) {
-      if (p.x === x && (y < p.gapTop || y >= p.gapTop + GAP)) {
-        return { backgroundColor: GREEN, opacity: 0.85 };
+      const overlapsX = BIRD_CX + BIRD_R > p.x && BIRD_CX - BIRD_R < p.x + PIPE_W;
+      if (overlapsX && (by - BIRD_R < p.gapTop || by + BIRD_R > p.gapTop + GAP)) {
+        drawFlappy();
+        return gameOver();
       }
     }
-    return null;
+
+    drawFlappy();
+    rafRef.current = requestAnimationFrame(flappyFrame);
   };
 
   // ============================================================
@@ -356,6 +413,17 @@ const GameConsole = () => {
     return null;
   };
 
+  // Visible well around the playfield
+  const positionTetrisWell = () => {
+    const el = tetrisWellRef.current;
+    if (!el) return;
+    const cs = cellSize();
+    el.style.left = `${PF_OFF_X * cs}px`;
+    el.style.top = `${PF_OFF_Y * cs}px`;
+    el.style.width = `${PF_W * cs}px`;
+    el.style.height = `${PF_H * cs}px`;
+  };
+
   // ============================================================
   //  Shared dispatch
   // ============================================================
@@ -367,13 +435,11 @@ const GameConsole = () => {
 
   const cellStyle = (x, y) => {
     if (gameRef.current === 'snake') return snakeStyle(x, y);
-    if (gameRef.current === 'flappy') return flappyStyle(x, y);
     return tetrisStyle(x, y);
   };
 
   const step = () => {
     if (gameRef.current === 'snake') snakeTick();
-    else if (gameRef.current === 'flappy') flappyTick();
     else tetrisTick();
   };
 
@@ -410,14 +476,17 @@ const GameConsole = () => {
     const screen = gameScreenRef.current;
     if (!screen) return;
     screen.innerHTML = '';
-    const cellSize = window.innerWidth > 1536 ? 10 : 8;
 
+    // Flappy is drawn entirely by its overlays
+    if (gameRef.current === 'flappy') return;
+
+    const cs = cellSize();
     for (let y = 0; y < ROWS; y++) {
       for (let x = 0; x < COLS; x++) {
         const cell = document.createElement('div');
         cell.className = 'cell';
-        cell.style.width = `${cellSize}px`;
-        cell.style.height = `${cellSize}px`;
+        cell.style.width = `${cs}px`;
+        cell.style.height = `${cs}px`;
         cell.style.display = 'flex';
         cell.style.flexShrink = '0';
 
@@ -429,6 +498,13 @@ const GameConsole = () => {
     }
   };
 
+  // Full redraw for the active game (grid + overlays)
+  const layout = () => {
+    render();
+    if (gameRef.current === 'flappy') drawFlappy();
+    if (gameRef.current === 'tetris') positionTetrisWell();
+  };
+
   // ============================================================
   //  Flow control
   // ============================================================
@@ -437,18 +513,29 @@ const GameConsole = () => {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
   };
 
   const startGame = () => {
+    stopLoop();
     setShowStartButton(false);
     setShowGameOver(false);
     setShowCongrats(false);
     setScore(0);
     initActiveGame();
     gameStartedRef.current = true;
-    render();
-    stopLoop();
-    intervalRef.current = setInterval(step, GAMES[gameRef.current].speed);
+    layout();
+
+    if (gameRef.current === 'flappy') {
+      lastTsRef.current = null;
+      flappyFlap(); // a small hop to start
+      rafRef.current = requestAnimationFrame(flappyFrame);
+    } else {
+      intervalRef.current = setInterval(step, GAMES[gameRef.current].speed);
+    }
   };
 
   const resetToStart = () => {
@@ -459,7 +546,7 @@ const GameConsole = () => {
     setShowCongrats(false);
     setScore(0);
     initActiveGame();
-    render();
+    layout();
   };
 
   const gameOver = () => {
@@ -503,11 +590,11 @@ const GameConsole = () => {
       }
     };
 
-    const handleResize = () => render();
+    const handleResize = () => layout();
 
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('resize', handleResize);
-    render();
+    layout();
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
@@ -527,8 +614,41 @@ const GameConsole = () => {
       <img id="corner" src="/icons/console/bolt-down-left.svg" alt="" className="absolute bottom-2 left-2 opacity-70" />
       <img id="corner" src="/icons/console/bolt-down-right.svg" alt="" className="absolute bottom-2 right-2 opacity-70" />
 
-      {/* Game Screen */}
-      <div id="game-screen" ref={gameScreenRef}></div>
+      {/* Game Screen + overlays */}
+      <div id="screen-wrap">
+        <div id="game-screen" ref={gameScreenRef}></div>
+
+        {/* Flappy: pipes + bird */}
+        <div
+          id="pipes-layer"
+          ref={pipesLayerRef}
+          style={{ display: currentGame === 'flappy' ? 'block' : 'none' }}
+        ></div>
+        <svg
+          id="flappy-bird"
+          ref={birdRef}
+          viewBox="0 0 26 20"
+          aria-hidden="true"
+          style={{ display: currentGame === 'flappy' ? 'block' : 'none' }}
+        >
+          {/* body */}
+          <ellipse cx="11.5" cy="11" rx="9.5" ry="7.5" fill={GREEN} />
+          {/* wing */}
+          <path d="M3.5 11.5c2.5-3.5 7-3.8 9.5-1.2-2.3 2.9-6.6 3.6-9.5 1.2z" fill="#011627" opacity="0.28" />
+          {/* beak */}
+          <path d="M20 9.2 25.5 10.6 20 12.6z" fill={GREEN} />
+          {/* eye */}
+          <circle cx="16" cy="7.8" r="2.1" fill="#011627" />
+          <circle cx="16.7" cy="7.2" r="0.6" fill="#E5E9F0" />
+        </svg>
+
+        {/* Tetris: visible well */}
+        <div
+          id="tetris-well"
+          ref={tetrisWellRef}
+          style={{ display: currentGame === 'tetris' ? 'block' : 'none' }}
+        ></div>
+      </div>
 
       {/* Start Button */}
       {showStartButton && (
@@ -564,8 +684,8 @@ const GameConsole = () => {
       </div>
 
       {/* Console Menu */}
-      <div id="console-menu" className="h-full flex flex-col items-end justify-between">
-        <div className="flex flex-col items-end">
+      <div id="console-menu" className="flex flex-col justify-between">
+        <div className="flex flex-col">
           {/* Game selector */}
           <div id="game-select">
             {Object.entries(GAMES).map(([key, g]) => (
@@ -594,8 +714,8 @@ const GameConsole = () => {
             )}
             {currentGame === 'tetris' && (
               <>
-                <p>// up rotate, down drop</p>
-                <p>// left / right to move</p>
+                <p>// arrows to move</p>
+                <p>// up to rotate</p>
               </>
             )}
 
@@ -621,9 +741,9 @@ const GameConsole = () => {
           </div>
 
           {/* Score Board */}
-          <div id="score-board" className="w-full flex flex-col pl-5">
+          <div id="score-board" className="flex flex-col">
             <p className="font-fira text-white pt-5">// {game.unit} left</p>
-            <div id="score" className="grid grid-cols-5 gap-5 justify-items-center pt-5 w-fit">
+            <div id="score" className="grid grid-cols-5 gap-5 justify-items-center pt-5 w-fit mx-auto">
               {[...Array(WIN_SCORE)].map((_, i) => (
                 <div key={i} className="food"></div>
               ))}
@@ -632,7 +752,7 @@ const GameConsole = () => {
         </div>
 
         {/* Skip */}
-        <Link id="skip-btn" to="/about-me" className="font-fira flex hover:bg-white/20">
+        <Link id="skip-btn" to="/about-me" className="font-fira flex self-end hover:bg-white/20">
           skip
         </Link>
       </div>
